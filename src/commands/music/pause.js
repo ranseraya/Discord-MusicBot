@@ -3,21 +3,24 @@ const { useQueue } = require('discord-player');
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('skip')
-        .setDescription('Skip the song that is playing.'),
+        .setName('pause')
+        .setDescription('Pauses the currently playing song.'),
     async execute(interaction) {
         const queue = useQueue(interaction.guild.id);
+
         if (!queue || !queue.isPlaying()) {
             return interaction.reply({ content: 'No music is playing!', ephemeral: true });
         }
 
-        const currentTrack = queue.currentTrack;
-        queue.node.skip(); // Melewatkan lagu
+        if (queue.node.isPaused()) {
+             return interaction.reply({ content: 'The music is already on pause!', ephemeral: true });
+        }
+
+        queue.node.setPaused(true);
 
         const embed = new EmbedBuilder()
-            .setDescription(`⏭️ Successfully passed **${currentTrack.title}**`)
-            .setColor('#2f3136');
-
+            .setDescription('⏸️ Music has been paused.')
+            .setColor('#ffff00');
         await interaction.reply({ embeds: [embed] });
     },
 };

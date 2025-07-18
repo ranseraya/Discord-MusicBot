@@ -1,26 +1,26 @@
-const { Events } = require('discord.js');
+module.exports = async (client, inter) => {
+    if (!inter.isCommand()) return;
+    const command = client.commands.get(inter.commandName);
 
-module.exports = {
-    name: Events.InteractionCreate,
-    async execute(interaction) {
-        if (!interaction.isChatInputCommand()) return;
+    if (!command) {
+        console.error(`Command "${inter.commandName}" not found.`);
+        return inter.reply({ content: 'This command does not exist!', ephemeral: true });
+    }
 
-        const command = interaction.client.commands.get(interaction.commandName);
-
-        if (!command) {
-            console.error(`No commands match ${interaction.commandName}.`);
-            return;
+    if (command.voiceChannel) {
+        if (!inter.member.voice.channel) {
+            return inter.reply({ content: 'You must be in a voice channel to use this command!', ephemeral: true });
         }
-
-        try {
-            await command.execute(interaction);
-        } catch (error) {
-            console.error(error);
-            if (interaction.replied || interaction.deferred) {
-                await interaction.followUp({ content: 'An error occurred while executing this command!', ephemeral: true });
-            } else {
-                await interaction.reply({ content: 'An error occurred while executing this command!', ephemeral: true });
-            }
+        if (inter.guild.members.me.voice.channel && inter.member.voice.channel.id !== inter.guild.members.me.voice.channel.id) {
+            return inter.reply({ content: 'You are not on the same voice channel as me!', ephemeral: true });
         }
-    },
+    }
+
+    try {
+        await inter.deferReply();
+        await command.execute({ inter, client });
+    } catch (error) {
+        console.error(error);
+        await inter.editReply({ content: 'An error occurred while executing this command!', ephemeral: true });
+    }
 };
