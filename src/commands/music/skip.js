@@ -1,23 +1,22 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const { useQueue } = require('discord-player');
+const { SlashCommandBuilder } = require('discord.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('skip')
-        .setDescription('Skip the song that is playing.'),
-    async execute(interaction) {
-        const queue = useQueue(interaction.guild.id);
+        .setDescription('Skips the current song.'),
+    voiceChannel: true,
+    async execute({ inter, client }) {
+        const queue = client.player.nodes.get(inter.guild);
+
         if (!queue || !queue.isPlaying()) {
-            return interaction.reply({ content: 'No music is playing!', ephemeral: true });
+            return inter.reply({ content: 'No music is playing!', ephemeral: true });
         }
 
-        const currentTrack = queue.currentTrack;
-        queue.node.skip(); // Melewatkan lagu
+        const success = queue.node.skip();
 
-        const embed = new EmbedBuilder()
-            .setDescription(`⏭️ Successfully passed **${currentTrack.title}**`)
-            .setColor('#2f3136');
-
-        await interaction.reply({ embeds: [embed] });
+        return inter.reply({
+            content: success ? `⏭️ | Song **${queue.currentTrack.title}** has been passed.` : '❌ | Failed to skip the song.',
+            ephemeral: true
+        });
     },
 };

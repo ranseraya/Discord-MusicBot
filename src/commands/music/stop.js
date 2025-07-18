@@ -1,22 +1,19 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const { useQueue } = require('discord-player');
+const { SlashCommandBuilder } = require('discord.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('stop')
-        .setDescription('Stop the music, clear the queue, and exit.'),
-    async execute(interaction) {
-        const queue = useQueue(interaction.guild.id);
-        if (!queue) {
-            return interaction.reply({ content: 'There is no music that needs to be stopped.', ephemeral: true });
+        .setDescription('Stops the music and clears the queue.'),
+    voiceChannel: true,
+    async execute({ inter, client }) {
+        const queue = client.player.nodes.get(inter.guild);
+
+        if (!queue || !queue.isPlaying()) {
+            return inter.reply({ content: 'No music is playing!', ephemeral: true });
         }
 
         queue.delete();
 
-        const embed = new EmbedBuilder()
-            .setDescription('⏹️ The music has stopped and the queue has been cleared.')
-            .setColor('#ff0000');
-
-        await interaction.reply({ embeds: [embed] });
+        await inter.reply({ content: '⏹️ | The music has stopped and the queue has been cleared.' });
     },
 };

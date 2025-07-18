@@ -1,44 +1,51 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const { useMainPlayer } = require('discord-player');
+const { SlashCommandBuilder } = require('discord.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('play')
-        .setDescription('Play songs or playlists from YouTube, Spotify, or SoundCloud.')
+        .setDescription('Plays a song from YouTube, Spotify, or SoundCloud.')
         .addStringOption(option =>
-            option.setName('query')
-                .setDescription('Song title or URL.')
+            option.setName('song')
+                .setDescription('The name or URL of the song.')
                 .setRequired(true)),
-    async execute(interaction) {
-        const player = useMainPlayer();
-
-        const channel = interaction.member.voice.channel;
-        if (!channel) {
-            return interaction.reply({ content: 'You must be on a voice channel to play music!', ephemeral: true });
+    voiceChannel: true,
+    async execute({ inter, client }) {
+        if (!inter.member.voice.channel) {
+            return inter.reply({ content: "You must be on the voice channel!", ephemeral: true });
         }
 
-        await interaction.deferReply();
+        await inter.deferReply();
 
-        const query = interaction.options.getString('query', true);
+        const songName = inter.options.getString('song');
+        const queue = client.player.nodes.create(inter.guild, {
+            metadata: {
+                channel: inter.channel,
+                client: inter.guild.members.me,
+                requestedBy: inter.user
+            },
+            selfDeaf: true,
+            volume: 80,
+        });
+
+        if (!queue.connection) await queue.connect(inter.member.voice.channel);
 
         try {
-            const { track } = await player.play(channel, query, {
-                nodeOptions: {
-                    metadata: interaction
-                }
+            const result = await client.player.search(songName, {
+                requestedBy: inter.user
             });
 
-            const embed = new EmbedBuilder()
-                .setTitle("✅ Added to Queue")
-                .setDescription(`**[${track.title}](${track.url})**`)
-                .setThumbnail(track.thumbnail)
-                .setColor('#2f3136')
-                .setFooter({ text: `Duration: ${track.duration}` });
-            return interaction.followUp({ embeds: [embed] });
+            if (!result || !result.tracks.length) {
+                return inter.editReply({ content: `❌ | Song **${songName}** not found!` });
+            }
 
-        } catch (e) {
-            console.error(e);
-            return interaction.followUp({ content: `❌ There is an error: ${e.message}` });
+            queue.addTrack(result.tracks[0]);
+            if (!queue.isPlaying()) await queue.node.play();
+
+            await inter.editReply({ content: `✅ | Adding **${result.tracks[0].title}** to the queue.` });
+
+        } catch (error) {
+            console.error(error);
+            await inter.editReply({ content: 'An error occurred while playing the song!', ephemeral: true });
         }
     },
 };

@@ -1,26 +1,26 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const { useQueue } = require('discord-player');
+const { SlashCommandBuilder } = require('discord.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('pause')
-        .setDescription('Pauses the currently playing song.'),
-    async execute(interaction) {
-        const queue = useQueue(interaction.guild.id);
+        .setDescription('Pauses the current song.'),
+    voiceChannel: true,
+    async execute({ inter, client }) {
+        const queue = client.player.nodes.get(inter.guild);
 
         if (!queue || !queue.isPlaying()) {
-            return interaction.reply({ content: 'No music is playing!', ephemeral: true });
+            return inter.reply({ content: 'No music is playing!', ephemeral: true });
         }
 
         if (queue.node.isPaused()) {
-             return interaction.reply({ content: 'The music is already on pause!', ephemeral: true });
+             return inter.reply({ content: 'The music is already on pause!', ephemeral: true });
         }
 
-        queue.node.setPaused(true);
+        const success = queue.node.pause();
 
-        const embed = new EmbedBuilder()
-            .setDescription('⏸️ Music has been paused.')
-            .setColor('#ffff00');
-        await interaction.reply({ embeds: [embed] });
+        return inter.reply({
+            content: success ? '⏸️ | Music has been paused.' : '❌ | Failed to pause music.',
+            ephemeral: true
+        });
     },
 };

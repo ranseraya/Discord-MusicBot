@@ -4,7 +4,7 @@ module.exports = {
     name: Events.ClientReady,
     once: true,
     execute(client) {
-        console.log(`✅ Ready! Bot has logged in as ${client.user.tag}`);
-        client.user.setActivity('Music | /play');
+        console.log(`The bot is ready! Login as${client.user.tag}`);
+        client.user.setActivity('Music 🎵');
     },
 };

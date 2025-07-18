@@ -1,42 +1,29 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const { useMainPlayer } = require('discord-player');
+const { SlashCommandBuilder } = require('discord.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('join')
-        .setDescription('Make bots join your voice channel.'),
-    async execute(interaction) {
-        const player = useMainPlayer();
-        const channel = interaction.member.voice.channel;
-
-        if (!channel) {
-            return interaction.reply({ content: 'You have to be on a voice channel first!', ephemeral: true });
+        .setDescription('Joins the voice channel.'),
+    voiceChannel: true,
+    async execute({ inter, client }) {
+        if (!inter.member.voice.channel) {
+            return inter.reply({ content: 'You must be in a voice channel to use this command!', ephemeral: true });
         }
 
-        if (interaction.guild.members.me.voice.channel) {
-             return interaction.reply({ content: "I'm already on a voice channel!", ephemeral: true });
-        }
+        const queue = client.player.nodes.create(inter.guild, {
+             metadata: {
+                channel: inter.channel,
+                client: inter.guild.members.me,
+                requestedBy: inter.user,
+            },
+            selfDeaf: true,
+            volume: 80,
+            leaveOnEmpty: true,
+            leaveOnEnd: true,
+        });
 
-        try {
-            player.nodes.create(interaction.guild, {
-                metadata: interaction.channel,
-                selfDeaf: true,
-                volume: 80,
-                leaveOnEmpty: true,
-                leaveOnEmptyCooldown: 300000,
-                leaveOnEnd: true,
-                leaveOnEndCooldown: 300000,
-            }).connect(channel);
+        if (!queue.connection) await queue.connect(inter.member.voice.channel);
 
-            const embed = new EmbedBuilder()
-                .setDescription(`✅ Successfully joined the channel: ${channel.name}!`)
-                .setColor('#2f3136');
-
-            await interaction.reply({ embeds: [embed] });
-
-        } catch (error) {
-            console.error(error);
-            return interaction.reply({ content: 'Failed to join voice channel.', ephemeral: true });
-        }
+        await inter.reply({ content: `Joined **${inter.member.voice.channel.name}**! 🎶`, ephemeral: true});
     },
 };
