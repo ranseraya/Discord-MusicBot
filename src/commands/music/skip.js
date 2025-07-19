@@ -15,7 +15,7 @@ module.exports = {
         const success = queue.node.skip();
 
         return inter.reply({
-            content: success ? `⏭️ | Song **${queue.currentTrack.title}** has been passed.` : '❌ | Failed to skip the song.',
+            content: success ? `⏭️ | Song **${queue.currentTrack.title}** has been skipped.` : '❌ | Failed to skip the song.',
             ephemeral: true
         });
     },

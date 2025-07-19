@@ -47,14 +47,15 @@ const client = new Client({
         for (const file of eventFiles) {
             const filePath = path.join(eventsPath, folder, file);
             const event = require(filePath);
+
             if (event.name && event.execute) {
+                const source = folder === 'player' ? client.player.events : client;
+
                 if (event.once) {
-                    client.once(event.name, (...args) => event.execute(client, ...args));
+                    source.once(event.name, (...args) => event.execute(client, ...args));
                 } else {
-                    client.on(event.name, (...args) => event.execute(client, ...args));
+                    source.on(event.name, (...args) => event.execute(client, ...args));
                 }
-            } else {
-                console.log(`[WARNING] The command ${filePath} does not have a 'name' or 'execute' property.`);
             }
         }
     }

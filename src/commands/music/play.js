@@ -1,5 +1,3 @@
-// File: src/commands/music/play.js
-
 const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js');
 
 module.exports = {

@@ -1,12 +1,16 @@
 module.exports = {
-    name: 'error',
-    execute(queue, error) {
-        console.log(`[Player Error] An error occurred on the queue server ${queue.guild.name}:`);
-        console.log(error);
-
-        const interaction = queue.metadata;
-        if (interaction && interaction.channel) {
-            interaction.channel.send(`❌ An error occurred in the music player: ${error.message}`);
+    name: 'playerError',
+    /**
+     * @param {import('discord.js').Client} client
+     * @param {import('discord-player').GuildQueue} queue
+     * @param {Error} error
+     */
+    async execute(client, queue, error) {
+        if (queue) {
+            console.log(`[Player Error] An error occurred on the queue server ${queue.guild.name}:`);
+        } else {
+            console.log(`[Player Error] A general error occurred in the player:`);
         }
+        console.error(error.message);
     },
 };

@@ -2,20 +2,25 @@ const { EmbedBuilder } = require('discord.js');
 
 module.exports = {
     name: 'playerStart',
-    execute(queue, track) {
-        const interaction = queue.metadata;
+    async execute(client, queue, track) {
+        if (!queue.metadata) return;
 
-        const embed = new EmbedBuilder()
-            .setAuthor({ name: `▶️ Start playing`, iconURL: track.requestedBy.displayAvatarURL() })
-            .setTitle(`${track.title}`)
-            .setURL(track.url)
-            .setThumbnail(track.thumbnail)
-            .setColor('#13f83e')
-            .addFields(
-                { name: 'Channel', value: `${queue.channel}`, inline: true },
-                { name: 'Duration', value: `\`${track.duration}\``, inline: true }
-            )
-            .setTimestamp();
-        interaction.channel.send({ embeds: [embed] });
+        try {
+            const description = `**[${track.title || 'Unknown Title'}](${track.url || '#'})**`;
+
+            const embed = new EmbedBuilder()
+                .setColor('#0099ff')
+                .setTitle('▶️ Start playing')
+                .setDescription(description)
+                .setThumbnail(track.thumbnail || null)
+                .setFooter({
+                    text: `Request by: ${track.requestedBy ? track.requestedBy.tag : 'Autoplay'}`
+                });
+
+            await queue.metadata.channel.send({ embeds: [embed] });
+
+        } catch (error) {
+            console.error("Failed to send request to playerStart:", error);
+        }
     },
 };
