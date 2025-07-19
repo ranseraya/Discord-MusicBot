@@ -4,12 +4,13 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('help')
         .setDescription('Shows a list of all available commands.'),
+    category: 'core',
     async execute({ inter, client }) {
         const commands = client.commands;
 
         const embed = new EmbedBuilder()
             .setColor('#0099ff')
-            .setTitle('Bot Command List')
+            .setTitle('Bot Command List LayaMusic')
             .setDescription('Here are all the commands you can use:');
 
         const commandCategories = {};

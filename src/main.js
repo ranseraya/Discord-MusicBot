@@ -3,13 +3,18 @@ const path = require('node:path');
 const { Client, Collection, GatewayIntentBits } = require('discord.js');
 const { Player } = require('discord-player');
 const { DefaultExtractors } = require('@discord-player/extractor');
+const { YoutubeiExtractor } = require('discord-player-youtubei');
 require('dotenv').config();
 
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildVoiceStates
-    ]
+        GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.GuildVoiceStates,
+        GatewayIntentBits.MessageContent,
+    ],
+    disableMentions: 'everyone',
 });
 
 (async () => {
@@ -20,6 +25,7 @@ const client = new Client({
         }
     });
     await client.player.extractors.loadMulti(DefaultExtractors);
+    await client.player.extractors.register(YoutubeiExtractor, {});
 
     // Command Handler
     client.commands = new Collection();
