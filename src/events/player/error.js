@@ -1,5 +1,5 @@
 module.exports = {
-    name: 'playerError',
+    name: 'error',
     /**
      * @param {import('discord.js').Client} client
      * @param {import('discord-player').GuildQueue} queue

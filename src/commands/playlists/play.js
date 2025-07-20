@@ -27,19 +27,26 @@ module.exports = {
         if (playlist.songs.length === 0) {
             return inter.editReply({ content: `Playlist "${playlistName}" empty!` });
         }
+        try {
+            const queue = client.player.nodes.create(inter.guild, { metadata: inter });
+            if (!queue.connection) await queue.connect(inter.member.voice.channel);
 
-        const queue = client.player.nodes.create(inter.guild, { metadata: inter });
-        if (!queue.connection) await queue.connect(inter.member.voice.channel);
-
-        for (const song of playlist.songs) {
-            const searchResult = await client.player.search(song.url, { requestedBy: inter.user });
-            if (searchResult.hasTracks()) {
-                queue.addTrack(searchResult.tracks[0]);
+            for (const song of playlist.songs) {
+                const searchResult = await client.player.search(song.url, { requestedBy: inter.user });
+                if (searchResult.hasTracks()) {
+                    queue.addTrack(searchResult.tracks[0]);
+                }
             }
+
+            if (!queue.isPlaying()) {
+                await queue.node.play();
+            }
+
+            return inter.editReply({ content: `▶️ | Playing **${playlist.songs.length} songs** from playlist **${playlist.name}**.` });
+
+        } catch (error) {
+            console.error("Error while playing playlist:", error);
+            return inter.editReply({ content: '❌ | An error occurred while trying to play the playlist.' });
         }
-
-        if (!queue.isPlaying()) await queue.node.play();
-
-        return inter.editReply({ content: `▶️ | Playing **${playlist.songs.length} songs** from playlist **${playlist.name}**.` });
     },
 };

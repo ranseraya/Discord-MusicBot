@@ -34,15 +34,23 @@ module.exports = {
         }
 
         const searchResult = await client.player.search(songQuery, { requestedBy: inter.user });
-        if (!searchResult.hasTracks()) {
-            return inter.editReply({ content: `Song "${songQuery}" not found.` });
-        }
 
-        const track = searchResult.tracks[0];
-        playlist.songs.push({
-            title: track.title,
-            url: track.url
-        });
+        if (searchResult.playlist) {
+            const tracksToAdd = searchResult.tracks.map(track => ({
+                title: track.title,
+                url: track.url
+            }));
+            playlist.songs.push(...tracksToAdd);
+            savePlaylists(allPlaylists);
+
+            return inter.editReply({ content: `✅ | Successfully added **${tracksToAdd.length} song** from playlist **${searchResult.playlist.title}** to **${playlist.name}**.` });
+        } else {
+            const track = searchResult.tracks[0];
+            playlist.songs.push({
+                title: track.title,
+                url: track.url
+            });
+        }
 
         savePlaylists(allPlaylists);
 
