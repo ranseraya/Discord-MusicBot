@@ -4,6 +4,7 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('skip')
         .setDescription('Skips the current song.'),
+    category: 'music',
     djOnly: true,
     voiceChannel: true,
     async execute({ inter, client }) {

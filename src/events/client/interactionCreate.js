@@ -3,10 +3,6 @@ const { QueueRepeatMode } = require('discord-player');
 
 module.exports = {
     name: Events.InteractionCreate,
-    /**
-     * @param {import('discord.js').Client} client
-     * @param {Interaction} inter
-     */
     async execute(client, inter) {
         if (inter.isChatInputCommand()) {
             await handleSlashCommand(client, inter);

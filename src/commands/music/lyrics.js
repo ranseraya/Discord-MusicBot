@@ -9,6 +9,7 @@ module.exports = {
                 .setDescription('Title of the song you want search for lyrics (optional).')
                 .setRequired(false)),
     category: 'music',
+    voiceChannel: true,
     async execute({ inter, client }) {
         await inter.deferReply();
 

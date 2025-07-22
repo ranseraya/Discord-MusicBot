@@ -4,6 +4,7 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('join')
         .setDescription('Joins the voice channel.'),
+    category: 'music',
     voiceChannel: true,
     async execute({ inter, client }) {
         try {

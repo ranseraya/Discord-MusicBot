@@ -8,6 +8,7 @@ module.exports = {
             option.setName('query')
                 .setDescription('Song title or URL.')
                 .setRequired(true)),
+    category: 'music',
     voiceChannel: true,
     async execute({ inter, client }) {
         try {

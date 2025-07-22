@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, AutoModerationRule } = require('discord.js');
+const { SlashCommandBuilder } = require('discord.js');
 const { QueueRepeatMode } = require('discord-player');
 
 module.exports = {

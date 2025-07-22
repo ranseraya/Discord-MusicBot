@@ -5,6 +5,7 @@ module.exports = {
         .setName('np')
         .setDescription('Displays the currently playing song.'),
     category: 'music',
+    voiceChannel: true,
     async execute({ inter, client }) {
         const queue = client.player.nodes.get(inter.guild);
         if (!queue || !queue.isPlaying()) {

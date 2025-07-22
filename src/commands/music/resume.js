@@ -4,6 +4,7 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('resume')
         .setDescription('Resumes the current song.'),
+    category: 'music',
     voiceChannel: true,
     async execute({ inter, client }) {
         const queue = client.player.nodes.get(inter.guild);
