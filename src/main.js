@@ -24,22 +24,18 @@ const client = new Client({
             highWaterMark: 1 << 25
         }
     });
-    await client.player.extractors.loadMulti(DefaultExtractors);
     await client.player.extractors.register(YoutubeiExtractor, {});
+    await client.player.extractors.loadMulti(DefaultExtractors);
 
     // Command Handler
     client.commands = new Collection();
     const commandsPath = path.join(__dirname, 'commands');
-    const commandFolders = fs.readdirSync(commandsPath);
-
-    for (const folder of commandFolders) {
+    for (const folder of fs.readdirSync(commandsPath)) {
         const files = fs.readdirSync(path.join(commandsPath, folder)).filter(file => file.endsWith('.js'));
         for (const file of files) {
             const command = require(path.join(commandsPath, folder, file));
             if (command.data && command.data.name) {
                 client.commands.set(command.data.name, command);
-            } else {
-                console.log(`[WARNING] Command in ${path.join(commandsPath, folder, file)} does not have property 'data' or 'data.name'.`);
             }
         }
     }
@@ -51,9 +47,7 @@ const client = new Client({
     for (const folder of eventFolders) {
         const eventFiles = fs.readdirSync(path.join(eventsPath, folder)).filter(file => file.endsWith('.js'));
         for (const file of eventFiles) {
-            const filePath = path.join(eventsPath, folder, file);
-            const event = require(filePath);
-
+            const event = require(path.join(eventsPath, folder, file));
             if (event.name && event.execute) {
                 const source = folder === 'player' ? client.player.events : client;
 

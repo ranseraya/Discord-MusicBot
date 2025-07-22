@@ -4,56 +4,49 @@ const { readPlaylists, savePlaylists } = require('../../utils/playlistManager');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('playlist-add')
-        .setDescription('Add songs to your custom playlist.')
+        .setDescription('Add songs or playlists to your custom playlist.')
         .addStringOption(option =>
             option.setName('playlist')
-                .setDescription('The name of the destination playlist.')
+                .setDescription('Destination playlist name.')
                 .setRequired(true))
         .addStringOption(option =>
-            option.setName('song')
-                .setDescription('The URL of the song you want to add.')
+            option.setName('query')
+                .setDescription('URL of the song or playlist you want to add.')
                 .setRequired(true)),
     category: 'playlist',
     async execute({ inter, client }) {
         await inter.deferReply({ ephemeral: true });
 
         const playlistName = inter.options.getString('playlist');
-        const songQuery = inter.options.getString('song');
+        const query = inter.options.getString('query');
         const userId = inter.user.id;
 
         const allPlaylists = readPlaylists();
-
         if (!allPlaylists[userId]) {
-            return inter.editReply({ content: "You don't have any playlist yet. Create playlist with `/playlist-create`." });
+            return inter.editReply({ content: "You don't have any playlists yet." });
         }
-
         const playlist = allPlaylists[userId].find(p => p.name.toLowerCase() === playlistName.toLowerCase());
-
         if (!playlist) {
-            return inter.editReply({ content: `Playlist with name "${playlistName}" not found.` });
+            return inter.editReply({ content: `Playlist "${playlistName}" not found.` });
         }
 
-        const searchResult = await client.player.search(songQuery, { requestedBy: inter.user });
-
-        if (searchResult.playlist) {
-            const tracksToAdd = searchResult.tracks.map(track => ({
-                title: track.title,
-                url: track.url
-            }));
-            playlist.songs.push(...tracksToAdd);
-            savePlaylists(allPlaylists);
-
-            return inter.editReply({ content: `✅ | Successfully added **${tracksToAdd.length} song** from playlist **${searchResult.playlist.title}** to **${playlist.name}**.` });
-        } else {
-            const track = searchResult.tracks[0];
-            playlist.songs.push({
-                title: track.title,
-                url: track.url
-            });
+        const searchResult = await client.player.search(query, { requestedBy: inter.user });
+        if (!searchResult.hasTracks()) {
+            return inter.editReply({ content: `No results found for "${query}".` });
         }
 
+        const tracksToAdd = searchResult.tracks.map(track => ({
+            title: track.title,
+            author: track.author
+        }));
+
+        playlist.songs.push(...tracksToAdd);
         savePlaylists(allPlaylists);
 
-        return inter.editReply({ content: `✅ | **${track.title}** has been added to the playlist **${playlist.name}**.` });
+        if (searchResult.playlist) {
+            return inter.editReply({ content: `✅ | successflly added **${tracksToAdd.length} songs** from **${searchResult.playlist.title}** to playlist **${playlist.name}**.` });
+        } else {
+            return inter.editReply({ content: `✅ | **${tracksToAdd[0].title}** has been added to playlist **${playlist.name}**.` });
+        }
     },
 };

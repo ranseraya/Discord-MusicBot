@@ -32,7 +32,8 @@ module.exports = {
             if (!queue.connection) await queue.connect(inter.member.voice.channel);
 
             for (const song of playlist.songs) {
-                const searchResult = await client.player.search(song.url, { requestedBy: inter.user });
+                const searchQuery = `${song.title} ${song.author}`;
+                const searchResult = await client.player.search(searchQuery, { requestedBy: inter.user });
                 if (searchResult.hasTracks()) {
                     queue.addTrack(searchResult.tracks[0]);
                 }
