@@ -4,6 +4,7 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('stop')
         .setDescription('Stops the music and clears the queue.'),
+    djOnly: true,
     voiceChannel: true,
     async execute({ inter, client }) {
         const queue = client.player.nodes.get(inter.guild);

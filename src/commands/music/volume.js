@@ -11,6 +11,7 @@ module.exports = {
                 .setMinValue(0)
                 .setMaxValue(100)),
     category: 'music',
+    djOnly: true,
     voiceChannel: true,
     async execute({ inter, client }) {
         const queue = client.player.nodes.get(inter.guild);
