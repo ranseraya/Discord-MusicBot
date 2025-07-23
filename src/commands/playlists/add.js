@@ -37,6 +37,7 @@ module.exports = {
 
         const tracksToAdd = searchResult.tracks.map(track => ({
             title: track.title,
+            url: track.url,
             author: track.author
         }));
 
