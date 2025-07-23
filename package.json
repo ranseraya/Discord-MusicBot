@@ -14,12 +14,12 @@
   "description": "",
   "dependencies": {
     "@discord-player/extractor": "^7.1.0",
-    "@discordjs/opus": "^0.10.0",
     "discord-player": "^7.1.0",
     "discord-player-youtubei": "^1.5.0",
     "discord.js": "^14.21.0",
     "dotenv": "^17.2.0",
     "ffmpeg-static": "^5.2.0",
+    "opusscript": "^0.1.1",
     "play-dl": "^1.9.7"
   }
 }
