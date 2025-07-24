@@ -19,7 +19,7 @@ const client = new Client({
 
 (async () => {
     client.player = new Player(client);
-    await client.player.extractors.register(YoutubeiExtractor, {});
+    // await client.player.extractors.register(YoutubeiExtractor, {});
     await client.player.extractors.loadMulti(DefaultExtractors);
 
     // Command Handler
