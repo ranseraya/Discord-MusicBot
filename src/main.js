@@ -2,7 +2,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { Client, Collection, GatewayIntentBits } = require('discord.js');
 const { Player } = require('discord-player');
-const { DefaultExtractors } = require('@discord-player/extractor');
+const { DefaultExtractors, SpotifyExtractor } = require('@discord-player/extractor');
 const { YoutubeiExtractor } = require('discord-player-youtubei');
 require('dotenv').config();
 
@@ -18,9 +18,32 @@ const client = new Client({
 });
 
 (async () => {
-    client.player = new Player(client);
-    // await client.player.extractors.register(YoutubeiExtractor, {});
+    client.player = new Player(client, {
+        ytdlOptions: {
+            quality: 'highestaudio',
+            highWaterMark: 1 << 25,
+        },
+    });
+    await client.player.extractors.register(YoutubeiExtractor, {});
     await client.player.extractors.loadMulti(DefaultExtractors);
+    await client.player.extractors.register(SpotifyExtractor, {
+        clientId: process.env.SPOTIFY_CLIENT_ID,
+        clientSecret: process.env.SPOTIFY_CLIENT_SECRET
+    });
+    client.player.events.on('error', (queue, error) => {
+        console.log(`[${queue.guild.name}] Error emitted from the queue: ${error.message}`);
+    })
+    client.player.events.on('playerError', (queue, error) => {
+        console.log(`[${queue.guild.name}] Error emitted from the player: ${error.message}`);
+    });
+
+    client.on('ready', () => {
+        console.log(`The bot is ready! Login as ${client.user.tag}`);
+        client.player.events.on('playerStart', (queue, track) => {
+            queue.metadata.channel.send(`🎵 | Now playing **${track.title}**!`);
+        });
+    });
+
 
     // Command Handler
     client.commands = new Collection();
